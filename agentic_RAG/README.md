@@ -84,13 +84,13 @@ Run the data parser code block to copy the dataset from your remote drive root i
 
 From fraud_agenticrag.py configuration section:
 
-PERSIST_DIR = ```**"./chromadb_frauddata_agentic"**```
+PERSIST_DIR = **```"./chromadb_frauddata_agentic"```**
 
-COLLECTION_NAME = ```**"langgraph_frauddata_agentic"**```
+COLLECTION_NAME = **```"langgraph_frauddata_agentic"```**
 
-COLLECTION_METADATA = ```**{"hnsw:space": "cosine"}**```
+COLLECTION_METADATA = **```{"hnsw:space": "cosine"}```**
 
-INGESTION_LIMIT = ```**500**```
+INGESTION_LIMIT = **```500```**
 
 
 
