@@ -65,13 +65,10 @@ Instead of wasting API tokens asking an LLM if the fetched documentation is rele
 
 ### 1. Installation
 Install all required libraries silently:
-
 ```bash
 pip install -q -U langgraph "langchain[openai]" langchain_community \
 langchain-text-splitters bs4 requests langchain_aws langchain_openai \
-langchain_chroma langchain_core python-dotenv boto3 jq```
-
-
+langchain_chroma langchain_core python-dotenv boto3 jq
 2. Secret Management & Credentials
 The application natively targets secure environment retrieval. Set the following environmental keys or populate them into your Google Colab Secrets interface:
 
@@ -92,7 +89,6 @@ INGESTION_LIMIT = 500
 Step 2: Running the Graph App Execution
 Invoke the graph stream using an analytical scenario query payload:
 
-```
 Python
 inputs = {
     "messages": [
@@ -107,8 +103,6 @@ for chunk in graph.stream(inputs):
     for node, update in chunk.items():
         print(f"--- Node Executed: {node} ---")
         update["messages"][-1].pretty_print()
-```
-
 📊 Live Sample Stream Output Tracing
 When evaluated against high-risk inputs, the system demonstrates parallel investigation tactics and accurate routing:
 
