@@ -8,7 +8,8 @@ This system acts as an automated **Financial Fraud Investigator**. Instead of re
 
 
 ## 🏗️ Architecture & System Data Flow
----
+
+```
 The system uses a state machine to track retry counters and control path execution. The diagram below reflects the structure generated dynamically by compiling `fraud_agenticrag.py`:
 
            [ START ]
@@ -34,7 +35,7 @@ The system uses a state machine to track retry counters and control path executi
              │                              │                              │
              ▼                              ▼                              ▼
           [ END ]              (Loops back to tool agent)               [ END ]
----
+```
 
 ## 🔥 Key Architectural Features
 
