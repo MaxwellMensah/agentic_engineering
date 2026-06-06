@@ -1,4 +1,3 @@
-Markdown
 # Agentic RAG with Advanced LangGraph Routing & Confidence Thresholds
 
 An enterprise-grade, stateful **Corrective RAG (CRAG)** pipeline built using **LangGraph**, **AWS Bedrock (Anthropic Claude & Amazon Titan)**, and a local **ChromaDB** vector store. 
