@@ -8,10 +8,9 @@ This system acts as an automated **Financial Fraud Investigator**. Instead of re
 
 
 ## 🏗️ Architecture & System Data Flow
-
-```
 The system uses a state machine to track retry counters and control path execution. The diagram below reflects the structure generated dynamically by compiling `fraud_agenticrag.py`:
 
+```
            [ START ]
                │
           init_node  (Sets retrieval_attempts = 0)
@@ -49,7 +48,6 @@ Rather than relying on stateless recursion, the workflow extends the base `Messa
 ### 3. Algorithmic Guardrails over LLM Guesswork
 Instead of wasting API tokens asking an LLM if the fetched documentation is relevant, relevance grading is performed programmatically within Python inside the custom tool definition. If the similarity score drops below **0.60**, a conditional gate intercepts execution instantly.
 
----
 
 ## 🛠️ Tech Stack & Dependencies
 
@@ -59,17 +57,20 @@ Instead of wasting API tokens asking an LLM if the fetched documentation is rele
 * **Vector Database:** `langchain-chroma` (ChromaDB engine)
 * **Dataset Management:** `jq` (JSONL nested structure processing)
 
----
 
 ## ⚙️ Configuration & Environment Setup
 
 ### 1. Installation
 Install all required libraries silently:
-```bash
+
+---
+bash
 pip install -q -U langgraph "langchain[openai]" langchain_community \
 langchain-text-splitters bs4 requests langchain_aws langchain_openai \
 langchain_chroma langchain_core python-dotenv boto3 jq
-2. Secret Management & Credentials
+---
+
+### 2. Secret Management & Credentials
 The application natively targets secure environment retrieval. Set the following environmental keys or populate them into your Google Colab Secrets interface:
 
 AWS_ACCESS_KEY_ID: Your IAM user identifier access token.
