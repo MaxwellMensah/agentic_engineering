@@ -81,15 +81,17 @@ The application natively targets secure environment retrieval. Set the following
 Run the data parser code block to copy the dataset from your remote drive root into active memory workspace, slice out a capped evaluation index window (500 records), convert objects into text structures, and store them into ChromaDB:
 
 **Python**
+
 From fraud_agenticrag.py configuration section:
 
-PERSIST_DIR = ```"./chromadb_frauddata_agentic"```
+PERSIST_DIR = ```**"./chromadb_frauddata_agentic"**```
 
-COLLECTION_NAME = ```"langgraph_frauddata_agentic"```
+COLLECTION_NAME = ```**"langgraph_frauddata_agentic"**```
 
-COLLECTION_METADATA = ```{"hnsw:space": "cosine"}```
+COLLECTION_METADATA = ```**{"hnsw:space": "cosine"}**```
 
-INGESTION_LIMIT = ```500```
+INGESTION_LIMIT = ```**500**```
+
 
 
 **Step 2:** Running the Graph App Execution
