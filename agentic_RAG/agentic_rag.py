@@ -152,7 +152,9 @@ class AgenticRAGState(MessagesState):
     retrieval_attempts: int
 
 
-# Change the name and description so Claude knows its new purpose
+# Tools are the interface for your graph's nodes to interact with external systems, databases, or APIs. 
+# This tool queries our internal vector database for historical fraud cases that match the user's inquiry. 
+# The tool's output is carefully formatted to include confidence scores and structured information for the judge model to evaluate. 
 @tool
 def retrieve_fraud_cases(query: str) -> str:
     """Queries the internal historical vector database to scan for past fraud patterns,
@@ -194,7 +196,7 @@ def retrieve_fraud_cases(query: str) -> str:
         )
 
 
-# Make sure to pass the updated tool to your graph's ToolNode
+# pass the updated tool to your graph's ToolNode
 retriever_tool = retrieve_fraud_cases
 
 
