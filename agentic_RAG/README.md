@@ -5,10 +5,10 @@ An enterprise-grade, stateful **Corrective RAG (CRAG)** pipeline built using **L
 
 This system acts as an automated **Financial Fraud Investigator**. Instead of relying on a naive, single-shot database lookup, this agent evaluates the mathematical similarity of retrieved past cases, routes data flows conditionally, and dynamically optimizes its search queries if the initial historical matches are ambiguous.
 
----
+
 
 ## 🏗️ Architecture & System Data Flow
-
+---
 The system uses a state machine to track retry counters and control path execution. The diagram below reflects the structure generated dynamically by compiling `fraud_agenticrag.py`:
 
            [ START ]
@@ -34,7 +34,6 @@ The system uses a state machine to track retry counters and control path executi
              │                              │                              │
              ▼                              ▼                              ▼
           [ END ]              (Loops back to tool agent)               [ END ]
-
 ---
 
 ## 🔥 Key Architectural Features
