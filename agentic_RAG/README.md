@@ -91,7 +91,7 @@ AWS_DEFAULT_REGION=us-east-1
 # LangSmith Deep Telemetry & Tracing
 LANGCHAIN_TRACING_V2=true
 LANGCHAIN_API_KEY=your_langsmith_api_key
-LANGCHAIN_PROJECT=Week_3_Fraud_Agentic_RAG
+LANGCHAIN_PROJECT=fraud_agentic_RAG_traces
 
 ```
 
