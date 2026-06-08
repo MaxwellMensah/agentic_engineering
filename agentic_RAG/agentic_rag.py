@@ -63,8 +63,8 @@ with open(LOCAL_FILE_PATH, "r", encoding="utf-8") as file:
     # parse the string into a clean Python dictionary
     first_record = json.loads(first_line.strip())
 
-print("🔑 === FIRST RECORD KEY-VALUE PAIRS === 🔑\n")
-print(json.dumps(first_record, indent=4))
+# print("🔑 === FIRST RECORD KEY-VALUE PAIRS === 🔑\n")
+# print(json.dumps(first_record, indent=4))
 
 # parse the JSONL nested structure
 print(f"\n⚙️ Extracting exactly {INGESTION_LIMIT} records from conversational JSONL...")
@@ -152,9 +152,9 @@ class AgenticRAGState(MessagesState):
     retrieval_attempts: int
 
 
-# Tools are the interface for your graph's nodes to interact with external systems, databases, or APIs. 
-# This tool queries our internal vector database for historical fraud cases that match the user's inquiry. 
-# The tool's output is carefully formatted to include confidence scores and structured information for the judge model to evaluate. 
+# Tools are the interface for your graph's nodes to interact with external systems, databases, or APIs.
+# This tool queries our internal vector database for historical fraud cases that match the user's inquiry.
+# The tool's output is carefully formatted to include confidence scores and structured information for the judge model to evaluate.
 @tool
 def retrieve_fraud_cases(query: str) -> str:
     """Queries the internal historical vector database to scan for past fraud patterns,
@@ -373,8 +373,9 @@ logging.info(f"💾 Graph visualization successfully saved to: {output_image_pat
 
 
 # STREAMING EXECUTION
-for chunk in graph.stream(
-    {
+if __name__ == "__main__":
+    print("\n🔬 Running standalone test query...")
+    test_state = {
         "messages": [
             {
                 "role": "user",
@@ -382,11 +383,8 @@ for chunk in graph.stream(
             }
         ]
     }
-):
-    for node, update in chunk.items():
-        logging.info(f"Update from node: {node}")
-
-        # pretty_print as it cleanly outputs to standard out
-        update["messages"][-1].pretty_print()
-        # use a raw print statement for visual line breaks to avoid logging format pollution
-        print("\n\n")
+    for chunk in graph.stream(test_state):
+        for node, update in chunk.items():
+            logging.info(f"Update from node: {node}")
+            if "messages" in update and len(update["messages"]) > 0:
+                update["messages"][-1].pretty_print()
