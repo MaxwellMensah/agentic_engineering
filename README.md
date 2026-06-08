@@ -6,5 +6,5 @@ agentic-engineering/
 │ ├── react_agent.py
 │ └── README.md
 ├── langgraph-agents/
-├── crewai-projects/
+├── multi-agents/
 └── ...```
