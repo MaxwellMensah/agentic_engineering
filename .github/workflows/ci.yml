@@ -26,4 +26,4 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'sk-dummy-key-for-tests' }}
         run: |
-          pixi run pytest -v tests/
+          pixi run pytest -v unittest/
