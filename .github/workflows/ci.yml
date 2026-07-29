@@ -19,12 +19,12 @@ jobs:
       - name: Set up Pixi Environment
         uses: prefix-dev/setup-pixi@v0.10.0
         with:
-          # Point setup-pixi to your project's pixi.toml
+          # REPLACE 'project1' WITH YOUR EXACT SUBFOLDER NAME
           manifest-path: "project1/pixi.toml"
           cache: true
 
       - name: Run Test Suite
-        # Tells GitHub Actions to run the command inside your project folder
+        # REPLACE 'project1' WITH YOUR EXACT SUBFOLDER NAME
         working-directory: ./project1
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'sk-dummy-key-for-tests' }}
