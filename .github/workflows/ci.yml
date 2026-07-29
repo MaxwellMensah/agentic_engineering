@@ -19,9 +19,7 @@ jobs:
       - name: Set up Pixi Environment
         uses: prefix-dev/setup-pixi@v0.10.0
         with:
-          # Exact path matching your GitHub subfolder name
-          manifest-path: "project 1 - Intelligent Document Fraud Agent/pixi.toml"
-          cache: true
+          working-directory: "./project 1 - Intelligent Document Fraud Agent"
 
       - name: Run Test Suite
         working-directory: "./project 1 - Intelligent Document Fraud Agent"
