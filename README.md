@@ -17,13 +17,3 @@ An end-to-end agentic AI pipeline integrating **Model Context Protocol (MCP)**, 
 * **Core:** Python, Local LLMs (Ollama), LangChain / LangGraph
 * **Protocols & Orchestration:** Model Context Protocol (MCP), n8n
 * **Vector Store & APIs:** Chroma DB / Vector DB, Slack Webhook API
-
-
-```
-agentic-engineering/
-├── react-agent/
-│ ├── react_agent.py
-│ └── README.md
-├── langgraph-agents/
-├── multi-agents/
-└── ...```
