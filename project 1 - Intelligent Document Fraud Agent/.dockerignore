@@ -1,0 +1,15 @@
+# Ignore large model files and datasets
+*.gguf
+*.jsonl
+fraud_model_q4km_V4.gguf
+fraud_detection_dataset_V4.jsonl
+
+# Ignore environment & version control
+.pixi/
+.git/
+pixi.lock
+pixi.toml
+
+# Ignore python caches
+__pycache__/
+*.pyc
