@@ -1,6 +1,4 @@
-# ==========================================
-# STAGE 1: Builder
-# ==========================================
+# STAGE 1: BUILDER
 FROM python:3.11-slim AS builder
 
 WORKDIR /app
@@ -14,9 +12,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 
-# ==========================================
-# STAGE 2: Production Runner
-# ==========================================
+# STAGE 2: PRODUCTION RUNNER
 FROM python:3.11-slim AS runner
 
 WORKDIR /app
