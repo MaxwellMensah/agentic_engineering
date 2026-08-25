@@ -1,6 +1,8 @@
 # Context-Engineered ReAct Agent
 
-An production-grade ReAct agent architecture built with LangChain, LangGraph, and Ollama. This system integrates dynamic middleware for policy enforcement and dynamic prompt routing alongside **ContextBuilder**—a context-engineering pipeline designed to mitigate LLM context rot, respect token limits, and handle RAG retrieval gracefully.
+An production-grade ReAct agent architecture built with LangChain, LangGraph, and Ollama. This system integrates dynamic middleware 
+for policy enforcement and dynamic prompt routing alongside **ContextBuilder**.
+A context-engineering pipeline designed to mitigate LLM context rot, respect token limits, and handle RAG retrieval gracefully.
 
 ---
 
