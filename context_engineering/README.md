@@ -26,7 +26,7 @@ The agent therefore behaves as a cyclic ReAct system rather than a single linear
                                             │
                                             ▼
                               ┌──────────────────────────┐
-                              │       ReAct Agent         │
+                              │       ReAct Agent        │
                               └────────────┬─────────────┘
                                            │
                                            ▼
