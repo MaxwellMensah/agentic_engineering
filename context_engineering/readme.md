@@ -1,7 +1,7 @@
 # Context-Engineered ReAct Agent
 
-An production-grade ReAct agent architecture built with LangChain, LangGraph, and Ollama. This system integrates dynamic\ 
-middleware for policy enforcement and dynamic prompt routing alongside **ContextBuilder**: a context-engineering pipeline\ 
+An production-grade ReAct agent architecture built with LangChain, LangGraph, and Ollama. This system integrates dynamic<br> 
+middleware for policy enforcement and dynamic prompt routing alongside **ContextBuilder**: a context-engineering pipeline<br>
 designed to mitigate LLM context rot, respect token limits, and handle RAG retrieval gracefully.
 
 ---
@@ -95,7 +95,7 @@ Raw Chunks ──► Cleaning & Term Normalization
 
 **Key Features**
 
-* **Separator Overhead Accounting:** Calculates precise token counts by including joining delimiters (`\n\n---\n\n`)\ during selection and compression checks.
+* **Separator Overhead Accounting:** Calculates precise token counts by including joining delimiters (`\n\n---\n\n`)<br> during selection and compression checks.
 * **Lost-in-the-Middle Reordering:** Positionally places the highest relevance chunk at the start ($P_0$) and the second-highest at the end ($P_N$) to leverage LLM attention curves.
 * **Quality Gating:** Evaluates query term coverage and context density ($0.70 \cdot \text{Coverage} + 0.30 \cdot \text{Length}$). Fails gracefully if context quality drops below threshold (default: `0.60`).
 * **Auditing:** Records full pipeline metrics per run for inspection via `context_builder.audit_json()`.
