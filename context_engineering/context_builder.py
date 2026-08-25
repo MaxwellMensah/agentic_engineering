@@ -25,7 +25,7 @@ class TokenCounter:
 
 # STOP WORDS & NORMALIZATION
 _STOP_WORDS = {
-"the", "a", "an", "is", "are", "was", "were",
+    "the", "a", "an", "is", "are", "was", "were",
     "in", "on", "at", "to", "for", "of", "and",
     "or", "but", "it", "its", "this", "that",
     "with", "be", "by", "from", "as", "into",
