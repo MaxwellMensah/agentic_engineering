@@ -12,7 +12,8 @@ When building and scaling production LLM applications and agents, selecting the 
 * **Langfuse** shines in framework-agnostic tracking, unit-based cost monitoring, and providing robust analytics for latency and token spend at every execution step.
 
 > **Langsmith Trace Evidence:**<br>
-> ![Langsmith Trace Screenshot](assets/langsmith_shot.jpg)
+
+![Langsmith Trace Screenshot](assets/langsmith_shot.jpg)
 
 ---
 
@@ -26,7 +27,8 @@ When building and scaling production LLM applications and agents, selecting the 
 | **Pricing Model** | Seat-based plus tier-based trace retention. | Usage/unit-based (traces, observations, and scores) with unlimited seats on paid tiers. |
 
 > **Langfuse Trace Evidence (Cloud Run):**<br>
-> ![Langfuse Trace Screenshot](assets/langfuse_screenshot.png)
+
+![Langfuse Trace Screenshot](assets/langfuse_screenshot.png)
 
 ---
 
