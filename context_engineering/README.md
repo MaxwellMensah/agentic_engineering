@@ -295,11 +295,11 @@ Lost-in-the-Middle Reordering
         ▼
 Quality Gate
         │
-    ┌───┴────┐
-    │        │
-  PASS     FAIL
-    │        │
-    ▼        ▼
+    ┌───┴───────────┐
+    │               │
+  PASS             FAIL
+    │               │
+    ▼               ▼
  Final Context  Empty Context
         │
         ▼
