@@ -11,8 +11,8 @@ When building and scaling production LLM applications and agents, selecting the 
 * **LangSmith** excels in deep agentic workflow transparency, offering a granular, step-by-step execution graph (such as tracking nodes from initialization through retrieval, document grading, and tool routing).
 * **Langfuse** shines in framework-agnostic tracking, unit-based cost monitoring, and providing robust analytics for latency and token spend at every execution step.
 
-> **Langsmith Trace Evidence:**<br>
-
+<!-- > **Langsmith Trace Evidence:**<br> -->
+### Visual Evidence: LangSmith Agentic Graph Transparency 
 ![Langsmith Trace Screenshot](assets/langsmith_shot.png)
 
 ---
@@ -26,8 +26,8 @@ When building and scaling production LLM applications and agents, selecting the 
 | **Deployment & Ownership** | Proprietary SaaS platform with hybrid/enterprise self-hosting options. | Open-source core (MIT) with flexible self-hosting (ClickHouse backend) or managed cloud. |
 | **Pricing Model** | Seat-based plus tier-based trace retention. | Usage/unit-based (traces, observations, and scores) with unlimited seats on paid tiers. |
 
-> **Langfuse Trace Evidence (Cloud Run):**<br>
-
+<!-- > **Langfuse Trace Evidence (Cloud Run):**<br> -->
+### Visual Evidence: Langfuse Cloud Run Payload & Latency Trace
 ![Langfuse Trace Screenshot](assets/langfuse_shot.png)
 
 ---
