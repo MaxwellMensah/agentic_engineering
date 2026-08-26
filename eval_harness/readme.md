@@ -28,7 +28,7 @@ When building and scaling production LLM applications and agents, selecting the 
 
 > **Langfuse Trace Evidence (Cloud Run):**<br>
 
-![Langfuse Trace Screenshot](assets/langfuse_screenshot.png)
+![Langfuse Trace Screenshot](assets/langfuse_shot.png)
 
 ---
 
