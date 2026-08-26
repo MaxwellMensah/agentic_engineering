@@ -5,7 +5,7 @@
 An end-to-end agentic AI pipeline integrating **Model Context Protocol (MCP)**, **Retrieval-Augmented Generation (RAG)**, and **n8n workflow orchestration** with real-time **Slack alerting**.
 
 ## 🏗️ Architecture Overview
-[User Input] ➡️ [n8n Webhook / Orchestrator] ➡️ [Agentic RAG & MCP Tool Execution] ➡️ [Slack Notification]
+[**User Input**] *--->* [**n8n Webhook / Orchestrator**] *--->* [**Agentic RAG & MCP Tool Execution**] *--->* [**Slack Notification**]
 
 ## ✨ Key Features
 * **Model Context Protocol (MCP):** Standardized context and tool connection for LLM agents.
