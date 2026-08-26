@@ -4,10 +4,16 @@ import ast
 import math
 import operator as op
 import os
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from context_engine import ContextBuilder
+from suppress_warnings import silence_warnings
+
+silence_warnings()
+
+from context_builder import ContextBuilder
+from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.agents.middleware import (
     AgentMiddleware,
@@ -20,12 +26,15 @@ from langchain.agents.middleware import (
 from langchain.messages import ToolMessage
 from langchain.tools import tool
 from langchain.tools.tool_node import ToolCallRequest
-from langchain_ollama import ChatOllama
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.types import Command
 from tavily import TavilyClient
 
-# CONFIGURATION & MODELS
+# Environment Configuration
+load_dotenv()
+
+# PRODUCTION CONSTANTS
 MAX_STEPS = 6
 CONTEXT_TOKEN_BUDGET = 1200
 CONTEXT_QUALITY_THRESHOLD = 0.60
@@ -33,11 +42,21 @@ SUMMARY_TRIGGER_TOKENS = 4000
 SUMMARY_KEEP_MESSAGES = 10
 MAX_TOOL_OUTPUT_CHARS = 5000
 
-agent_llm = ChatOllama(model="gemma4:e2b-it-q4_K_M", temperature=0, streaming=True)
-heavy_llm = ChatOllama(
-    model="gemma4:e2b-it-q4_K_M", temperature=0
-)  # Fallback model for complex/long contexts
-compression_llm = ChatOllama(model="qwen2.5-coder:1.5b", temperature=0)
+# Gemini Model Orchestration
+agent_llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    temperature=0,
+    max_retries=6,
+)
+heavy_llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-pro",
+    temperature=0,
+    max_retries=6,
+)
+compression_llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    temperature=0,
+)
 
 context_builder = ContextBuilder(
     token_budget=CONTEXT_TOKEN_BUDGET,
@@ -46,15 +65,12 @@ context_builder = ContextBuilder(
     verbose=True,
 )
 
-tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
+tavily_client = TavilyClient(api_key=os.environ.get("TAVILY_API_KEY", ""))
 
 
-# RUNTIME CONTEXT
 @dataclass
 class Context:
-    """
-    Application-level runtime configuration passed to middleware.
-    """
+    """Production runtime context passed through the middleware pipeline."""
 
     user_role: str = "user"
     environment: str = "production"
@@ -64,7 +80,7 @@ class Context:
 # TOOLS
 @tool
 def search(query: str) -> str:
-    """Search the web for current information, news, and factual verification."""
+    """Use for current events, news, people, political figures, dates, and general web searches."""
     try:
         response = tavily_client.search(
             query=query, search_depth="basic", max_results=5, include_answer=False
@@ -139,7 +155,6 @@ def calculator(expression: str) -> str:
 @tool
 def weather_checker(location: str) -> str:
     """Get current weather for a city or location."""
-    # this is a demo implementation. Replace with actual weather API.
     return (
         f"Weather for {location}: 28°C, partly cloudy, humidity 65%, wind 12 km/h NE."
     )
@@ -148,54 +163,65 @@ def weather_checker(location: str) -> str:
 TOOLS = [search, calculator, weather_checker]
 
 
-# MIDDLEWARE IMPLEMENTATIONS
+# PRODUCTION MIDDLEWARE PIPELINE
 @dynamic_prompt
 def adaptive_system_prompt(request: ModelRequest) -> str:
+    """Step 1: Construct system persona from request runtime context."""
     context = request.runtime.context
     message_count = len(request.messages)
 
-    prompt = f"""
-        You are a precise ReAct AI agent.
+    prompt = f"""You are an accurate agentic assistant.
 
-        User & Environment:
-        - Role: {context.user_role}
-        - Expertise: {context.expertise_level}
-        - Environment: {context.environment}
+                User Context:
+                - Role: {context.user_role}
+                - Expertise: {context.expertise_level}
+                - Environment: {context.environment}
 
-        Rules:
-        1. Use minimum tool calls necessary. Answer directly when sufficient evidence exists.
-        2. Distinguish retrieved facts from reasoning. Do not fabricate current information.
+                Rules:
+                1. Always invoke tools directly when real-world facts or math calculations are required.
+                2. Provide a clear, direct answer once tool results are returned.
 
-        Current conversation contains approximately {message_count} messages.
-        """
+                Current conversation contains approximately {message_count} messages."""
 
     if context.expertise_level == "beginner":
-        prompt += "\nThe user is a beginner. Explain technical terms concisely."
+        prompt += "\n- Explain technical terms in accessible words."
     elif context.expertise_level == "advanced":
-        prompt += "\nThe user is technically advanced. Use precise technical terminology and highlight trade-offs."
+        prompt += "\n- Use precise terminology and emphasize trade-offs."
 
     if context.environment == "production":
-        prompt += "\nProduction policy: Be conservative, precise, and never invent missing facts."
+        prompt += "\n- Production policy: Be conservative, precise, and never invent missing facts."
 
     return prompt
 
 
 @wrap_model_call
-def step_limiter(
+def input_guardrail(
     request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]
 ) -> ModelResponse:
-    def is_ai_message(msg) -> bool:
-        if isinstance(msg, dict):
-            return msg.get("type") == "ai" or msg.get("role") == "assistant"
-        return getattr(msg, "type", "") == "ai"
+    """Inspect request messages for injection vectors or restricted actions."""
+    forbidden_patterns = [
+        "ignore previous instructions",
+        "system prompt override",
+        "drop database",
+    ]
+    for msg in request.messages:
+        content_str = str(getattr(msg, "content", "")).lower()
+        if any(pattern in content_str for pattern in forbidden_patterns):
+            print("[Guardrail] Prompt injection pattern detected.")
+            raise ValueError(
+                "Security Violation: Request contains prohibited prompt pattern."
+            )
+    return handler(request)
 
-    steps_taken = len([m for m in request.messages if is_ai_message(m)])
-    print(f"[Agent step {steps_taken + 1}/{MAX_STEPS}]")
 
-    if steps_taken >= MAX_STEPS:
-        print("[StepLimiter] Maximum model steps reached. Stripping tool availability.")
-        request = request.override(tools=[])
-
+@wrap_model_call
+def dynamic_model_selection(
+    request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]
+) -> ModelResponse:
+    """Step 3: Route context dynamically based on conversation depth."""
+    if len(request.messages) > 14:
+        print("[ModelPolicy] High message volume → Switching to Gemini Pro.")
+        request = request.override(model=heavy_llm)
     return handler(request)
 
 
@@ -203,6 +229,7 @@ def step_limiter(
 def role_based_tools(
     request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]
 ) -> ModelResponse:
+    """Enforce role-based tool restrictions (RBAC)."""
     role = request.runtime.context.user_role
     available_tools = list(request.tools)
 
@@ -210,22 +237,60 @@ def role_based_tools(
         available_tools = [
             t for t in available_tools if t.name in {"search", "weather_checker"}
         ]
-        print("[ToolPolicy] viewer → calculator disabled")
+        print("[ToolPolicy] viewer role → calculator tool removed")
     elif role == "calculator_only":
         available_tools = [t for t in available_tools if t.name == "calculator"]
-        print("[ToolPolicy] calculator_only → only calculator available")
+        print("[ToolPolicy] calculator_only role → search and weather removed")
 
     return handler(request.override(tools=available_tools))
 
 
 @wrap_model_call
-def dynamic_model_selection(
+def step_limiter(
     request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]
 ) -> ModelResponse:
-    if len(request.messages) > 14:
-        print("[ModelPolicy] Long context detected → Routing to heavy model.")
-        request = request.override(model=heavy_llm)
+    """Enforce upper bound on execution turns (Runs AFTER RBAC)."""
+
+    def is_ai_message(msg) -> bool:
+        if isinstance(msg, dict):
+            return msg.get("type") == "ai" or msg.get("role") == "assistant"
+        return getattr(msg, "type", "") == "ai"
+
+    steps_taken = len([m for m in request.messages if is_ai_message(m)])
+    print(f"[StepLimiter] Turn {steps_taken + 1}/{MAX_STEPS}")
+
+    if steps_taken >= MAX_STEPS:
+        print("[StepLimiter] Step limit reached. Disabling tool access.")
+        request = request.override(tools=[])
+
     return handler(request)
+
+
+@wrap_model_call
+def production_telemetry(
+    request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]
+) -> ModelResponse:
+    """Log latency and token usage per LLM invocation."""
+    start_time = time.perf_counter()
+    response = handler(request)
+    elapsed = time.perf_counter() - start_time
+
+    usage_metadata = getattr(response, "usage_metadata", {})
+    prompt_tokens = (
+        usage_metadata.get("input_tokens", 0)
+        if isinstance(usage_metadata, dict)
+        else getattr(usage_metadata, "input_tokens", 0)
+    )
+    completion_tokens = (
+        usage_metadata.get("output_tokens", 0)
+        if isinstance(usage_metadata, dict)
+        else getattr(usage_metadata, "output_tokens", 0)
+    )
+
+    print(
+        f"[Telemetry] Duration: {elapsed:.3f}s | Prompt Tokens: {prompt_tokens} | Completion Tokens: {completion_tokens}"
+    )
+    return response
 
 
 class ToolOutputCompressionMiddleware(AgentMiddleware):
@@ -245,7 +310,6 @@ class ToolOutputCompressionMiddleware(AgentMiddleware):
         ):
             return response
 
-        # Skip compression if already handled by ContextBuilder or if output is small
         if (
             response.content.startswith("[compressed tool output]")
             or len(response.content) <= self.threshold
@@ -255,7 +319,7 @@ class ToolOutputCompressionMiddleware(AgentMiddleware):
         print(
             f"[ToolCompression] {response.name}: {len(response.content)} chars → compressing"
         )
-        prompt = f"Summarize factual facts, numbers, dates, and claims concisely:\n\n{response.content}"
+        prompt = f"Summarize facts, numbers, dates, and claims concisely:\n\n{response.content}"
         compressed = compression_llm.invoke(prompt).content
 
         return ToolMessage(
@@ -290,10 +354,12 @@ agent = create_agent(
     tools=TOOLS,
     checkpointer=checkpointer,
     middleware=[
-        adaptive_system_prompt,
-        step_limiter,
-        role_based_tools,
-        dynamic_model_selection,
+        adaptive_system_prompt,  # System Prompt Construction
+        input_guardrail,  # Input Security & Guardrails
+        dynamic_model_selection,  # Model Routing
+        role_based_tools,  # RBAC Tool Filtering
+        step_limiter,  # Step Limiter (Strips tools if step limit hit)
+        production_telemetry,  # Observability & Token Metrics
         ToolOutputCompressionMiddleware(threshold=MAX_TOOL_OUTPUT_CHARS),
         ToolErrorMiddleware(),
         SummarizationMiddleware(
@@ -306,7 +372,6 @@ agent = create_agent(
 )
 
 
-# EXECUTION INTERFACE
 def run(
     query: str,
     *,
@@ -330,24 +395,38 @@ def run(
         },
     )
 
-    print(f"\n{'=' * 70}\nFINAL ANSWER\n{result['messages'][-1].content}\n{'=' * 70}")
+    final_msg = result["messages"][-1]
+    if isinstance(final_msg.content, list):
+        clean_text = "".join(
+            block["text"]
+            for block in final_msg.content
+            if isinstance(block, dict) and "text" in block
+        )
+    else:
+        clean_text = str(final_msg.content)
+
+    print(f"\n{'=' * 70}\nFINAL ANSWER\n{clean_text}\n{'=' * 70}")
     return result
 
 
 if __name__ == "__main__":
     run(
         "Who is the current president of Ghana in 2026?",
-        thread_id="sess_1",
+        thread_id="sess_search",
         expertise_level="advanced",
     )
 
     run(
         "What is 125 * 48 and then calculate its square root?",
-        thread_id="sess_1",
+        thread_id="sess_math",
         expertise_level="advanced",
     )
 
-    run("What is the weather in Accra?", thread_id="sess_1", expertise_level="beginner")
+    run(
+        "What is the weather in Accra?",
+        thread_id="sess_weather",
+        expertise_level="beginner",
+    )
 
     print(f"\n{'=' * 70}\nCONTEXT ENGINEERING AUDIT LOG\n{'=' * 70}")
     print(context_builder.audit_json())
