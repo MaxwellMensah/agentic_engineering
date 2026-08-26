@@ -1,10 +1,10 @@
 # Context-Engineered ReAct Agent
 
-A production-oriented ReAct agent built with **LangChain, LangGraph, and Ollama**, with a two-layer context-engineering architecture.
+A production-oriented ReAct agent built with **LangChain, LangGraph, and Google Gemini**, with a two-layer context-engineering architecture.
 
 The system separates context engineering into two distinct responsibilities:
 
-1. **Agent-level context engineering** - the mandatory control layer around every model call. It manages runtime context, dynamic prompting, tool authorization, execution limits, model routing, tool errors, tool-output protection, and conversation summarization.
+1. **Agent-level context engineering** - the mandatory control layer around every model call. It manages runtime context, dynamic prompting, input guardrails, model routing, tool authorization, execution limits, production telemetry, tool errors, tool-output protection, and conversation summarization.
 2. **Retrieval-level context engineering** - a custom `ContextBuilder` that is activated **only when the `search` tool is invoked**. It optimizes retrieved web content through relevance ranking, token budgeting, compression, Lost-in-the-Middle reordering, quality gating, and auditing.
 
 This separation keeps general agent orchestration independent from retrieval-specific context optimization.
@@ -20,72 +20,73 @@ This separation keeps general agent orchestration independent from retrieval-spe
 The agent therefore behaves as a cyclic ReAct system rather than a single linear pipeline.
 
 ```text
-                                 ┌──────────────────────┐
-                                 │      User Query      │
-                                 └──────────┬───────────┘
+                                  ┌──────────────────────┐
+                                  │      User Query      │
+                                  └──────────┬───────────┘
+                                             │
+                                             ▼
+                               ┌──────────────────────────┐
+                               │       ReAct Agent        │
+                               └────────────┬─────────────┘
                                             │
                                             ▼
-                              ┌──────────────────────────┐
-                              │       ReAct Agent        │
-                              └────────────┬─────────────┘
-                                           │
-                                           ▼
                 ╔══════════════════════════════════════════════════╗
-                ║           AGENT-LEVEL MIDDLEWARE                 ║
-                ║              MANDATORY PATH                      ║
+                ║            AGENT-LEVEL MIDDLEWARE                ║
+                ║                MANDATORY PATH                    ║
                 ║                                                  ║
                 ║  • Adaptive System Prompt                        ║
-                ║  • Runtime Context                               ║
-                ║  • Step Limiter                                  ║
+                ║  • Input Security Guardrail                      ║
+                ║  • Model Routing (Dynamic Model Selection)       ║
                 ║  • Role-Based Tool Policy                        ║
-                ║  • Model Routing                                 ║
+                ║  • Step Limiter                                  ║
+                ║  • Production Telemetry                          ║
                 ║  • Tool Error Handling                           ║
                 ║  • Tool Output Compression                       ║
                 ║  • Conversation Summarization                    ║
                 ╚═══════════════════════╤══════════════════════════╝
                                         │
                                         ▼
-                              ┌──────────────────────┐
-                              │       Agent LLM      │
-                              │ gemma4:e2b-it-q4_K_M │
-                              └──────────┬───────────┘
-                                         │
-                           ┌─────────────┴─────────────┐
-                           │                           │
-                      Tool Call                  Final Answer
-                           │                           │
-                           ▼                           ▼
-                 ┌───────────────────┐        ┌─────────────────┐
-                 │   Tool Execution  │        │   Return User   │
-                 └─────────┬─────────┘        └─────────────────┘
-                           │
-             ┌─────────────┼─────────────┐
-             │             │             │
-             ▼             ▼             ▼
-        ┌──────────┐  ┌──────────┐  ┌──────────────┐
-        │Calculator│  │ Weather  │  │    Search    │
-        │   AST    │  │ Checker  │  │    Tavily    │
-        └────┬─────┘  └────┬─────┘  └──────┬───────┘
-             │             │               │
-             │             │               ▼
-             │             │      ╔══════════════════════╗
-             │             │      ║    CONTEXTBUILDER    ║
-             │             │      ║     SEARCH ONLY      ║
-             │             │      ╠══════════════════════╣
-             │             │      ║ • Relevance Ranking  ║
-             │             │      ║ • Token Budgeting    ║
-             │             │      ║ • Compression        ║
-             │             │      ║ • Lost-in-Middle     ║
-             │             │      ║ • Quality Gate       ║
-             │             │      ║ • Audit Logging      ║
-             │             │      ╚═══════════╤══════════╝
-             │             │                  │
-             └─────────────┴──────────────────┘
-                           │
-                           ▼
+                               ┌──────────────────────┐
+                               │      Agent LLM       │
+                               │   gemini-2.5-flash   │
+                               └──────────┬───────────┘
+                                          │
+                            ┌─────────────┴─────────────┐
+                            │                           │
+                       Tool Call                   Final Answer
+                            │                           │
+                            ▼                           ▼
+                  ┌───────────────────┐       ┌─────────────────┐
+                  │  Tool Execution   │       │   Return User   │
+                  └─────────┬─────────┘       └─────────────────┘
+                            │
+              ┌─────────────┼─────────────┐
+              │             │             │
+              ▼             ▼             ▼
+         ┌──────────┐  ┌──────────┐  ┌──────────────┐
+         │Calculator│  │ Weather  │  │    Search    │
+         │   AST    │  │ Checker  │  │    Tavily    │
+         └────┬─────┘  └────┬─────┘  └──────┬───────┘
+              │             │               │
+              │             │               ▼
+              │             │      ╔══════════════════════╗
+              │             │      ║    CONTEXTBUILDER    ║
+              │             │      ║     SEARCH ONLY      ║
+              │             │      ╠══════════════════════╣
+              │             │      ║ • Relevance Ranking  ║
+              │             │      ║ • Token Budgeting    ║
+              │             │      ║ • Compression        ║
+              │             │      ║ • Lost-in-Middle     ║
+              │             │      ║ • Quality Gate       ║
+              │             │      ║ • Audit Logging      ║
+              │             │      ╚═══════════╤══════════╝
+              │             │                  │
+              └─────────────┴──────────────────┘
+                            │
+                            ▼
                     Tool Observation
-                           │
-                           ▼
+                            │
+                            ▼
                 ╔════════════════════════╗
                 ║ Agent Middleware Again ║
                 ╚════════════╤═══════════╝
@@ -94,6 +95,7 @@ The agent therefore behaves as a cyclic ReAct system rather than a single linear
                             LLM
                              │
                           ...loop...
+
 ```
 
 ### Execution examples
@@ -116,6 +118,7 @@ Agent Middleware
 LLM
   ↓
 Final Answer
+
 ```
 
 #### Weather request
@@ -136,6 +139,7 @@ Agent Middleware
 LLM
   ↓
 Final Answer
+
 ```
 
 #### Search request
@@ -166,6 +170,7 @@ Agent Middleware
 LLM
   ↓
 Final Answer
+
 ```
 
 The important architectural distinction is:
@@ -180,17 +185,19 @@ The important architectural distinction is:
 
 The agent-level middleware is the **global control layer**.
 
-It applies to every model call regardless of which tools are used.
+It applies to every model call regardless of which tools are used, strictly following this operational sequence:
 
-| Component                         | Responsibility                                                 |
-| --------------------------------- | -------------------------------------------------------------- |
-| `adaptive_system_prompt`          | Dynamically constructs model instructions from runtime context |
-| `step_limiter`                    | Restricts agent/model execution depth                          |
-| `role_based_tools`                | Controls which tools are available to each role                |
-| `dynamic_model_selection`         | Provides context-aware model routing                           |
-| `ToolOutputCompressionMiddleware` | Prevents unusually large tool outputs from bloating context    |
-| `ToolErrorMiddleware`             | Converts tool failures into structured model feedback          |
-| `SummarizationMiddleware`         | Compresses long-running conversation history                   |
+| Step | Component | Responsibility |
+| --- | --- | --- |
+| 1 | `adaptive_system_prompt` | Dynamically constructs model instructions from runtime context |
+| 2 | `input_guardrail` | Evaluates inputs for security policies, prompt injection, and compliance |
+| 3 | `dynamic_model_selection` | Provides context-aware model routing (e.g., routing to `gemini-2.5-pro` vs `gemini-2.5-flash`) |
+| 4 | `role_based_tools` | Controls which tools are available to each role |
+| 5 | `step_limiter` | Restricts agent execution depth (strips tools when step limit is hit) |
+| 6 | `production_telemetry` | Logs latency, token usage, cost estimates, and operational metrics |
+| 7 | `ToolOutputCompressionMiddleware` | Prevents unusually large tool outputs from bloating context using `gemini-2.5-flash` |
+| 8 | `ToolErrorMiddleware` | Converts tool failures into structured model feedback |
+| 9 | `SummarizationMiddleware` | Compresses long-running conversation history |
 
 ## 2. Retrieval-Level Context Engineering
 
@@ -200,6 +207,7 @@ It only executes when the agent invokes:
 
 ```text
 search()
+
 ```
 
 The `ContextBuilder` receives the raw Tavily results and transforms them into a bounded, optimized observation before returning that observation to the ReAct loop.
@@ -211,29 +219,30 @@ The `ContextBuilder` receives the raw Tavily results and transforms them into a 
 The agent uses a cyclic model/tool architecture:
 
 ```text
-               ┌─────────────────────┐
-               │ Agent Middleware    │
-               └──────────┬──────────┘
-                          ↓
-                         LLM
-                          │
-                   ┌──────┴──────┐
-                   │             │
-                Tool Call     Final Answer
-                   │             │
-                   ↓             ↓
-                Execute        Return
-                   │
-                   ↓
+                ┌─────────────────────┐
+                │ Agent Middleware    │
+                └──────────┬──────────┘
+                           ↓
+                          LLM
+                           │
+                    ┌──────┴──────┐
+                    │             │
+                 Tool Call     Final Answer
+                    │             │
+                    ↓             ↓
+                 Execute        Return
+                    │
+                    ↓
              Tool Observation
-                   │
-                   ↓
+                    │
+                    ↓
              Agent Middleware
-                   │
-                   ↓
-                  LLM
-                   │
-                  ...
+                    │
+                    ↓
+                   LLM
+                    │
+                   ...
+
 ```
 
 This means a single user request can involve multiple model calls.
@@ -271,7 +280,7 @@ Token-Budget Selection
         └── Exceeds Budget
                     │
                     ▼
-          Opportunistic Compression
+          Opportunistic Compression (via Gemini)
                     │
                 ┌───┴────┐
                 │        │
@@ -282,19 +291,20 @@ Token-Budget Selection
                 │
                 ▼
 Lost-in-the-Middle Reordering
-                │
-                ▼
+        │
+        ▼
 Quality Gate
-                │
-            ┌───┴────┐
-            │        │
-          PASS      FAIL
-            │        │
-            ▼        ▼
-      Final Context  Empty Context
-            │
-            ▼
-      Tool Observation
+        │
+    ┌───┴────┐
+    │        │
+  PASS     FAIL
+    │        │
+    ▼        ▼
+ Final Context  Empty Context
+        │
+        ▼
+ Tool Observation
+
 ```
 
 ## ContextBuilder techniques
@@ -308,6 +318,7 @@ relevance =
     matching query terms
     --------------------
     query terms
+
 ```
 
 This is intentionally lightweight and deterministic. The implementation can later be replaced by BM25 or embedding similarity without changing the surrounding architecture.
@@ -322,6 +333,7 @@ It accounts for both:
 chunk tokens
 +
 separator tokens
+
 ```
 
 so the budget reflects the actual assembled context rather than just the raw documents.
@@ -330,7 +342,7 @@ so the budget reflects the actual assembled context rather than just the raw doc
 
 Compression is only attempted when a chunk cannot fit naturally into the remaining budget.
 
-This avoids paying the latency cost of an LLM compression call for chunks that already fit.
+This avoids paying the latency cost of an LLM compression call for chunks that already fit. When needed, `gemini-2.5-flash` compresses the candidate chunk.
 
 ### Lost-in-the-Middle reordering
 
@@ -340,12 +352,14 @@ For a ranked set:
 
 ```text
 A B C D E
+
 ```
 
 the selected set is reordered as:
 
 ```text
 A C D E B
+
 ```
 
 where:
@@ -353,6 +367,7 @@ where:
 ```text
 A = highest relevance
 B = second-highest relevance
+
 ```
 
 This is a heuristic designed to place highly relevant information at the beginning and end of the assembled context.
@@ -365,12 +380,14 @@ The final context receives a quality score:
 Quality =
     0.70 × Query-Term Coverage
   + 0.30 × Context-Length Sufficiency
+
 ```
 
 If:
 
 ```text
 quality < quality_threshold
+
 ```
 
 the builder rejects the context rather than silently sending a low-quality retrieval payload to the model.
@@ -398,6 +415,7 @@ Audit records are available through:
 
 ```python
 context_builder.audit_json()
+
 ```
 
 ---
@@ -416,6 +434,7 @@ Calculator output is deterministic and generally small:
 AST Calculator
    ↓
 6000
+
 ```
 
 There is no collection of retrieved documents to rank or compress.
@@ -428,6 +447,7 @@ The weather tool produces a small, structured observation:
 Weather for Accra:
 28°C, partly cloudy,
 humidity 65%, wind 12 km/h NE.
+
 ```
 
 Again, there is no retrieval corpus requiring the ContextBuilder pipeline.
@@ -444,6 +464,7 @@ multiple documents
 large / redundant / differently relevant chunks
   ↓
 ContextBuilder
+
 ```
 
 This is where retrieval-specific context engineering provides value.
@@ -452,16 +473,16 @@ This is where retrieval-specific context engineering provides value.
 
 # Component Responsibilities
 
-| Component                         | Responsibility                    | Implementation                                                                                                                                  |
-| --------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ContextBuilder`                  | Retrieval-context optimization    | Lexical relevance ranking, separator-aware token budgeting, per-chunk compression, Lost-in-the-Middle reordering, quality gating, audit logging |
-| Agent Middleware                  | Global model-call context control | Dynamic prompting, runtime context, tool authorization, step limits, model routing, summarization, tool handling                                |
-| `Search`                          | External information retrieval    | Tavily + `ContextBuilder`                                                                                                                       |
-| `Calculator`                      | Mathematical computation          | AST parser with explicit operator/function allowlists                                                                                           |
-| `Weather Checker`                 | Weather information               | Small structured weather observation                                                                                                            |
-| `ToolOutputCompressionMiddleware` | Generic tool-output protection    | Compresses unusually large tool results                                                                                                         |
-| `ToolErrorMiddleware`             | Tool failure recovery             | Converts exceptions into structured feedback                                                                                                    |
-| `MemorySaver`                     | Persistent agent state            | Stores conversation state by `thread_id`                                                                                                        |
+| Component | Responsibility | Implementation |
+| --- | --- | --- |
+| `ContextBuilder` | Retrieval-context optimization | Lexical relevance ranking, separator-aware token budgeting, per-chunk Gemini compression, Lost-in-the-Middle reordering, quality gating, audit logging |
+| Agent Middleware | Global model-call context control | Dynamic prompting, input guardrails, model routing, tool authorization, step limits, telemetry, summarization, error handling |
+| `Search` | External information retrieval | Tavily + `ContextBuilder` |
+| `Calculator` | Mathematical computation | AST parser with explicit operator/function allowlists |
+| `Weather Checker` | Weather information | Small structured weather observation |
+| `ToolOutputCompressionMiddleware` | Generic tool-output protection | Compresses unusually large tool results using `gemini-2.5-flash` |
+| `ToolErrorMiddleware` | Tool failure recovery | Converts exceptions into structured feedback |
+| `MemorySaver` | Persistent agent state | Stores conversation state by `thread_id` |
 
 ---
 
@@ -475,21 +496,18 @@ Injects runtime context such as:
 user_role
 expertise_level
 environment
+
 ```
 
-into the model's instructions dynamically.
+into the model's instructions dynamically. It executes around each model invocation.
 
-It executes around each model invocation.
+## `input_guardrail`
 
-## `step_limiter`
+Filters and sanitizes inbound prompts before they reach the model. It detects adversarial inputs, prompt injection attempts, or out-of-bounds user instructions, halting or flagging unsafe requests early.
 
-Enforces:
+## `dynamic_model_selection`
 
-```text
-MAX_MODEL_STEPS = 6
-```
-
-When the limit is reached, tool availability is removed from the model request so the agent is pushed toward producing a final response.
+Provides a context-aware model routing layer. It evaluates context complexity, prompt size, or query difficulty and dynamically routes the request to the appropriate model (e.g., routing to `gemini-2.5-pro` for multi-step reasoning or deep history, and defaulting to `gemini-2.5-flash` for high-speed tasks).
 
 ## `role_based_tools`
 
@@ -502,6 +520,7 @@ viewer
 ├── search ✅
 ├── weather_checker ✅
 └── calculator ❌
+
 ```
 
 ```text
@@ -509,22 +528,27 @@ calculator_only
 ├── calculator ✅
 ├── search ❌
 └── weather_checker ❌
+
 ```
 
-## `dynamic_model_selection`
+## `step_limiter`
 
-Provides a routing hook for selecting different models based on context complexity.
+Enforces execution depth controls:
 
-The current project uses a local Ollama model; a stronger model can be configured here when required.
+```text
+MAX_MODEL_STEPS = 6
+
+```
+
+When the limit is reached, tool definitions are stripped from the model request, forcing the agent to produce a final answer with available observations.
+
+## `production_telemetry`
+
+Collects execution metrics across every model pass, including token counts, latency, routing decisions, and system logs, ensuring full operational visibility in production.
 
 ## `ToolOutputCompressionMiddleware`
 
-Provides a secondary protection layer for abnormally large tool responses.
-
-This is separate from `ContextBuilder`:
-
-* `ContextBuilder` optimizes **search retrieval**
-* `ToolOutputCompressionMiddleware` protects against **unexpectedly large tool output from any tool**
+Provides a secondary protection layer for abnormally large tool responses from non-search or arbitrary tools using `gemini-2.5-flash`.
 
 ## `ToolErrorMiddleware`
 
@@ -555,35 +579,31 @@ Unsupported expressions are rejected.
 
 ## Prerequisites
 
-* Python environment managed with **Pixi**
-* Ollama running locally
-* Tavily API key
-* Required Ollama models
-
-Pull the models:
-
-```bash
-ollama pull gemma4:e2b-it-q4_K_M
-ollama pull qwen2.5-coder:1.5b
-```
+* Python environment managed with **Pixi** or standard `venv`
+* Google Gemini API key (`GOOGLE_API_KEY`)
+* Tavily API key (`TAVILY_API_KEY`)
 
 ## Install
 
 ```bash
 pixi init
-pixi add langchain langchain-ollama langgraph tavily-python
+pixi add langchain langchain-google-genai langgraph tavily-python python-dotenv
+
 ```
 
 Activate the environment:
 
 ```bash
 pixi shell
+
 ```
 
-Configure Tavily:
+Configure Environment Variables:
 
 ```bash
+export GOOGLE_API_KEY="your-google-gemini-api-key"
 export TAVILY_API_KEY="your-tavily-api-key"
+
 ```
 
 ---
@@ -594,12 +614,14 @@ export TAVILY_API_KEY="your-tavily-api-key"
 
 ```bash
 python main_agent.py
+
 ```
 
 or:
 
 ```bash
 pixi run python main_agent.py
+
 ```
 
 ## Programmatic usage
@@ -609,11 +631,12 @@ from main_agent import run
 
 result = run(
     "Who is the current president of Ghana in 2026?",
-    thread_id="session_001",
+    thread_id="session_search",
     user_role="user",
     expertise_level="advanced",
     environment="production",
 )
+
 ```
 
 A calculator request:
@@ -621,8 +644,9 @@ A calculator request:
 ```python
 result = run(
     "What is 125 * 48?",
-    thread_id="session_002",
+    thread_id="session_math",
 )
+
 ```
 
 A weather request:
@@ -630,8 +654,9 @@ A weather request:
 ```python
 result = run(
     "What is the weather in Accra?",
-    thread_id="session_003",
+    thread_id="session_weather",
 )
+
 ```
 
 ---
@@ -646,6 +671,7 @@ from main_agent import context_builder
 print(
     context_builder.audit_json()
 )
+
 ```
 
 Important:
@@ -660,7 +686,7 @@ Example:
 [
   {
     "timestamp": "2026-08-25T17:21:24+00:00",
-    "query": "Who is the current president of Ghana in 2026?",
+    "query": "current president of Ghana in 2026?",
     "chunks_in": 5,
     "chunks_used": 3,
     "chunks_discarded": 2,
@@ -677,6 +703,7 @@ Example:
     "passed_gate": true
   }
 ]
+
 ```
 
 ---
@@ -693,6 +720,7 @@ run(
     thread_id="viewer_test",
     user_role="viewer",
 )
+
 ```
 
 The `role_based_tools` middleware removes the calculator from the model's available tools for the viewer role.
@@ -701,16 +729,16 @@ The `role_based_tools` middleware removes the calculator from the model's availa
 
 # Configuration Reference
 
-| Parameter                                  |         Default | Component        | Description                                                     |
-| ------------------------------------------ | --------------: | ---------------- | --------------------------------------------------------------- |
-| `token_budget`                             |          `1200` | `ContextBuilder` | Maximum estimated tokens for assembled retrieval context        |
-| `quality_threshold`                        |          `0.60` | `ContextBuilder` | Minimum quality score required to pass retrieval gating         |
-| `separator`                                | `"\n\n---\n\n"` | `ContextBuilder` | Delimiter between retrieved chunks                              |
-| `min_quality_context_tokens`               |            `80` | `ContextBuilder` | Token count at which the length component reaches full score    |
-| `minimum_remaining_tokens_for_compression` |            `40` | `ContextBuilder` | Minimum remaining budget required before attempting compression |
-| `MAX_MODEL_STEPS`                          |             `6` | Agent            | Maximum model-call steps allowed per request                    |
-| `SUMMARY_TRIGGER_TOKENS`                   |          `4000` | Agent            | Conversation size that triggers summarization                   |
-| `MAX_TOOL_OUTPUT_CHARS`                    |          `5000` | Agent            | Tool-output size threshold for generic compression              |
+| Parameter | Default | Component | Description |
+| --- | --- | --- | --- |
+| `token_budget` | `1200` | `ContextBuilder` | Maximum estimated tokens for assembled retrieval context |
+| `quality_threshold` | `0.60` | `ContextBuilder` | Minimum quality score required to pass retrieval gating |
+| `separator` | `"\n\n---\n\n"` | `ContextBuilder` | Delimiter between retrieved chunks |
+| `min_quality_context_tokens` | `80` | `ContextBuilder` | Token count at which the length component reaches full score |
+| `minimum_remaining_tokens_for_compression` | `40` | `ContextBuilder` | Minimum remaining budget required before attempting compression |
+| `MAX_MODEL_STEPS` | `6` | Agent | Maximum model-call steps allowed per request |
+| `SUMMARY_TRIGGER_TOKENS` | `4000` | Agent | Conversation size that triggers summarization |
+| `MAX_TOOL_OUTPUT_CHARS` | `5000` | Agent | Tool-output size threshold for generic compression |
 
 ---
 
@@ -720,6 +748,7 @@ The default `TokenCounter` uses an approximation:
 
 ```text
 estimated tokens ≈ characters / 4
+
 ```
 
 This is intended for lightweight local execution and demonstrations.
@@ -730,9 +759,10 @@ The `ContextBuilder` accepts a custom tokenizer callable:
 ContextBuilder(
     token_counter=my_tokenizer
 )
+
 ```
 
-This allows a model-specific tokenizer such as a Hugging Face tokenizer or another provider-specific tokenizer to be used when exact context accounting is required.
+This allows a model-specific tokenizer such as Google's native Gemini tokenizer or another provider-specific tokenizer to be used when exact context accounting is required.
 
 The architecture therefore separates **token-budget policy** from **token-counting implementation**.
 
@@ -752,6 +782,7 @@ Always relevant to model execution
 Retrieval context
         ↓
 Only relevant when search/retrieval occurs
+
 ```
 
 ### Evidence before reasoning
@@ -766,6 +797,7 @@ ContextBuilder
 Optimized evidence
     ↓
 LLM reasoning
+
 ```
 
 ### Explicit budgets
@@ -788,35 +820,37 @@ This project demonstrates a two-layer approach to context engineering:
 
 ```text
                     CONTEXT ENGINEERING
-                           │
-            ┌──────────────┴──────────────┐
-            │                             │
-            ▼                             ▼
-     AGENT-LEVEL LAYER             RETRIEVAL LAYER
-        ALWAYS ACTIVE                SEARCH ONLY
-            │                             │
-     dynamic prompting              relevance ranking
-     runtime context                token budgeting
-     tool authorization             compression
-     step limits                    Lost-in-Middle
-     model routing                  quality gating
-     summarization                  audit logging
-            │                             │
-            └──────────────┬──────────────┘
-                           ▼
-                          LLM
+                            │
+            ┌───────────────┴───────────────┐
+            │                               │
+            ▼                               ▼
+     AGENT-LEVEL LAYER               RETRIEVAL LAYER
+       ALWAYS ACTIVE                   SEARCH ONLY
+            │                               │
+     dynamic prompting               relevance ranking
+     input guardrails                token budgeting
+     model routing                   compression
+     tool authorization              Lost-in-Middle
+     step limits                     quality gating
+     telemetry & metrics             audit logging
+     summarization                   
+            │                               │
+            └───────────────┬───────────────┘
+                            ▼
+                           LLM
+
 ```
 
 The resulting architecture combines:
 
-* **LangChain middleware** for global agent-level context control
+* **LangChain middleware** for global agent-level context control (`adaptive_system_prompt`, `input_guardrail`, `dynamic_model_selection`, `role_based_tools`, `step_limiter`, `production_telemetry`)
 * **LangGraph-backed agent execution** for the ReAct loop and state management
 * **Custom ContextBuilder** for retrieval-specific context optimization
-* **Ollama** for local model inference and compression
+* **Google Gemini** for model inference, dynamic routing, and per-chunk compression
 * **Tavily** for web retrieval
 * **AST-based calculation** for safe deterministic math
 * **MemorySaver** for persistent conversation state
-* **Auditing** for retrieval-context observability
+* **Auditing & Telemetry** for end-to-end observability
 
 The central architectural principle is simple:
 
