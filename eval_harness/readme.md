@@ -13,7 +13,7 @@ When building and scaling production LLM applications and agents, selecting the 
 
 > **Langsmith Trace Evidence:**<br>
 
-![Langsmith Trace Screenshot](assets/langsmith_shot.jpg)
+![Langsmith Trace Screenshot](assets/langsmith_shot.png)
 
 ---
 
