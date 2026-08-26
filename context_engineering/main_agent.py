@@ -354,12 +354,12 @@ agent = create_agent(
     tools=TOOLS,
     checkpointer=checkpointer,
     middleware=[
-        adaptive_system_prompt,  # System Prompt Construction
-        input_guardrail,  # Input Security & Guardrails
-        dynamic_model_selection,  # Model Routing
-        role_based_tools,  # RBAC Tool Filtering
-        step_limiter,  # Step Limiter (Strips tools if step limit hit)
-        production_telemetry,  # Observability & Token Metrics
+        adaptive_system_prompt,         # System Prompt Construction
+        input_guardrail,                # Input Security & Guardrails
+        dynamic_model_selection,        # Model Routing
+        role_based_tools,               # RBAC Tool Filtering
+        step_limiter,                   # Step Limiter (Strips tools if step limit hit)
+        production_telemetry,           # Observability & Token Metrics
         ToolOutputCompressionMiddleware(threshold=MAX_TOOL_OUTPUT_CHARS),
         ToolErrorMiddleware(),
         SummarizationMiddleware(
