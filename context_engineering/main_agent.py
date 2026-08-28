@@ -155,6 +155,7 @@ def calculator(expression: str) -> str:
 @tool
 def weather_checker(location: str) -> str:
     """Get current weather for a city or location."""
+    # this is for demonstration purposes; in a real implementation, you would call a weather API for accurate forecasts
     return (
         f"Weather for {location}: 28°C, partly cloudy, humidity 65%, wind 12 km/h NE."
     )
