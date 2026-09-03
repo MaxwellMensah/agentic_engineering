@@ -16,7 +16,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
-# Initialize Gemini 1.5 Flash Model
+# Initialize Gemini Flash Model
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash", google_api_key=GEMINI_API_KEY, temperature=0.0
 )
