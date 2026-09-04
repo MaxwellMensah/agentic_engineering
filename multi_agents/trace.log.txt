@@ -1,0 +1,102 @@
+2026-09-03 23:14:19: task_name="None", task="Investigate the impact of Quantum Computing on modern cryptography.", agent="Senior Technical Researcher", status="started"
+2026-09-03 23:14:35: task_name="None", task="Investigate the impact of Quantum Computing on modern cryptography.", agent="Senior Technical Researcher", status="completed", output="Here are the key findings regarding the impact of Quantum Computing on modern cryptography, along with vulnerability timelines:
+
+### Key Findings
+
+*   **Asymmetric Cryptography is Fundamentally Broken:**
+    *   **Shor's Algorithm:** This quantum algorithm can efficiently factor large numbers (the basis of RSA) and solve the discrete logarithm problem (the basis of Elliptic Curve Cryptography - ECC and Diffie-Hellman).
+    *   **Impact:** RSA, ECC, and related public-key cryptosystems (used for key exchange, digital signatures, and public-key encryption) will be rendered insecure by a sufficiently large and stable fault-tolerant quantum computer. This is considered the most significant threat.
+    *   **Consequences:** Compromise of secure communication (TLS/SSL), digital identities, blockchain security, and critical infrastructure requiring public-key authentication.
+
+*   **Symmetric Cryptography is Weakened, Not Broken:**
+    *   **Grover's Algorithm:** This quantum algorithm offers a quadratic speedup for unstructured search problems, including brute-forcing symmetric encryption keys.
+    *   **Impact:** For a classical attack requiring $2^N$ operations, Grover's algorithm could perform it in approximately $2^{N/2}$ operations.
+    *   **Mitigation:** Doubling the key length of symmetric ciphers (e.g., moving from AES-128 to AES-256) is generally considered sufficient to maintain equivalent security against Grover's algorithm. Current symmetric ciphers like AES-256 are expected to remain robust.
+
+*   **Hash Functions are Weakened:**
+    *   **Grover's Algorithm:** Similar to symmetric ciphers, Grover's algorithm can speed up collision attacks and pre-image attacks on cryptographic hash functions (e.g., SHA-2, SHA-3).
+    *   **Impact:** The security level for collision resistance and pre-image resistance is effectively halved.
+    *   **Mitigation:** Increasing the output size of hash functions (e.g., using SHA-512 instead of SHA-256 for collision resistance where $2^{128}$ classical security is desired) can counter this threat.
+
+*   **The Rise of Post-Quantum Cryptography (PQC):**
+    *   **Definition:** PQC (also known as quantum-resistant or quantum-safe cryptography) refers to cryptographic algorithms designed to be secure against both classical and quantum computers.
+    *   **Families:** Active research areas include lattice-based cryptography, code-based cryptography, multivariate polynomial cryptography, hash-based cryptography, and isogeny-based cryptography.
+    *   **Standardization:** The National Institute of Standards and Technology (NIST) has been running a multi-round competition to standardize PQC algorithms, with initial standards expected in the near future. These will be the foundation for future quantum-safe systems.
+
+*   **Current State of Quantum Computers (NISQ Era):**
+    *   **Limitations:** Today's quantum computers are "noisy intermediate-scale quantum" (NISQ) devices with limited qubit counts, high error rates, and insufficient error correction. They are not yet capable of running Shor's algorithm on cryptographically relevant key sizes (e.g., factoring a 2048-bit RSA modulus would require millions of stable, error-corrected qubits).
+    *   **Research Focus:** Current efforts are focused on improving qubit stability, connectivity, error correction, and scaling to larger systems.
+
+*   **"Harvest Now, Decrypt Later" Threat:**
+    *   **Concept:** Adversaries (e.g., nation-states) can collect vast amounts of currently encrypted sensitive data (e.g., military secrets, intellectual property, personal health records) today, store it, and wait for the advent of a cryptographically relevant quantum computer to decrypt it.
+    *   **Risk:** Data with a long shelf-life or high enduring value is particularly vulnerable, even if encrypted with current robust algorithms.
+
+*   **Significant Migration Challenges:**
+    *   **Complexity:** Transitioning from current cryptographic standards to PQC will be a massive undertaking, requiring updates across all software, hardware, and protocols that rely on public-key cryptography.
+    *   **Interoperability:** Ensuring seamless communication and compatibility between systems using different cryptographic primitives during the transition period is crucial.
+    *   **Performance Overhead:** Some PQC algorithms may have larger key sizes, larger signature sizes, or slower computation times compared to their classical counterparts, requiring careful system design.
+    *   **Crypto-Agility:** The ability to rapidly upgrade or swap out cryptographic algorithms in deployed systems will be vital given the evolving landscape of quantum computing and PQC research.
+
+### Vulnerability Timelines
+
+These timelines are estimates and subject to rapid change based on breakthroughs in quantum computing research and engineering.
+
+*   **Near-Term (Current - ~5 Years):**
+    *   **Quantum Computing:** NISQ devices continue to improve. No immediate threat of breaking current public-key cryptography.
+    *   **PQC Development:** NIST PQC standardization process continues, with first draft standards expected to be finalized. Early implementations and pilot projects of PQC begin.
+    *   **Vulnerability:**
+        *   **Asymmetric (RSA/ECC):** No direct threat from quantum computers *yet*.
+        *   **Symmetric (AES) / Hashes (SHA):** Remain secure at current recommended key/output sizes.
+        *   **"Harvest Now, Decrypt Later":** This threat is *active*. Long-lived, highly sensitive data encrypted today is at risk of future decryption by a quantum computer. Organizations must identify and prioritize data with long-term confidentiality requirements.
+        *   **Focus:** Preparation, inventory of cryptographic assets, beginning to plan for PQC migration.
+
+*   **Mid-Term (~5 - ~15 Years):**
+    *   **Quantum Computing:** Significant advancements in qubit count, stability, and error correction. Prototypes of fault-tolerant quantum computers capable of running small instances of Shor's algorithm (e.g., factoring small numbers) may emerge.
+    *   **PQC Development:** PQC standards are finalized and begin to be widely adopted in new systems and critical infrastructure. Hybrid modes (combining classical and PQC algorithms) may be used for a transitional period.
+    *   **Vulnerability:**
+        *   **Asymmetric (RSA/ECC):** The risk profile for current public-key cryptography significantly increases. While not universally broken, the window for a quantum attack on cryptographically relevant key sizes begins to open. Systems with long operational lifetimes are particularly vulnerable.
+        *   **Symmetric (AES) / Hashes (SHA):** Continued robustness with increased key/output sizes (e.g., AES-256 for symmetric, SHA-512 for hashes).
+        *   **"Harvest Now, Decrypt Later":** The threat intensifies as quantum capabilities grow closer.
+        *   **Focus:** Widespread PQC adoption, migration of critical systems, development of quantum-safe hardware.
+
+*   **Long-Term (~15+ Years):**
+    *   **Quantum Computing:** Large-scale, fault-tolerant quantum computers capable of running Shor's algorithm on cryptographically relevant key sizes (e.g., 2048-bit RSA, ECC-256) are potentially available.
+    *   **PQC Development:** PQC algorithms become the default standard across all systems. Legacy systems that have not migrated face catastrophic security failures.
+    *   **Vulnerability:**
+        *   **Asymmetric (RSA/ECC):** All current public-key cryptography is considered broken and insecure.
+        *   **Symmetric (AES) / Hashes (SHA):** Only those implementations using sufficiently large key/output sizes (e.g., AES-256, SHA-512) remain secure against quantum attacks. Others are vulnerable to Grover's algorithm.
+        *   **"Harvest Now, Decrypt Later":** Collected data from the past can now be decrypted.
+        *   **Focus:** Maintenance of PQC standards, ongoing research into new quantum-safe primitives, and continuous monitoring of quantum computing advancements."
+2026-09-03 23:14:35: task_name="None", task="Using the research findings, draft a 2-paragraph summary report.", agent="Technical Writer", status="started"
+2026-09-03 23:14:40: task_name="None", task="Using the research findings, draft a 2-paragraph summary report.", agent="Technical Writer", status="completed", output="Thought: The user wants a 2-paragraph summary report based on the provided research findings.
+I need to synthesize the key information into two cohesive paragraphs, covering the impact on different cryptographic types, the "Harvest Now, Decrypt Later" threat, the role of PQC, and the general timeline/challenges.
+
+**Paragraph 1 Focus:**
+*   Impact on asymmetric cryptography (broken by Shor's).
+*   Impact on symmetric/hash functions (weakened by Grover's, but mitigable).
+*   Introduction of Post-Quantum Cryptography (PQC) as the solution.
+*   Current state of quantum computers (NISQ, not an immediate threat).
+
+**Paragraph 2 Focus:**
+*   The "Harvest Now, Decrypt Later" threat as an immediate concern.
+*   The mid-to-long term timeline for quantum threats and PQC adoption.
+*   The significant challenges of PQC migration.
+*   The urgency of planning and preparation.
+
+Let's draft the content for each paragraph.
+
+**Paragraph 1 Draft:**
+Quantum computing poses a dual threat to modern cryptography, with asymmetric algorithms facing a fundamental breakdown while symmetric and hash functions experience a weakening of their security. Shor's algorithm, capable of efficiently factoring large numbers and solving discrete logarithm problems, will render widely used public-key cryptosystems like RSA and Elliptic Curve Cryptography (ECC) insecure once fault-tolerant quantum computers become available. In contrast, Grover's algorithm offers only a quadratic speedup for symmetric ciphers and hash functions, meaning their security can largely be maintained by doubling key or output lengths (e.g., AES-256, SHA-512). To counter these emerging threats, Post-Quantum Cryptography (PQC) is being developed and standardized by bodies like NIST, offering algorithms designed to be secure against both classical and quantum attacks, though current quantum computers remain in the "noisy intermediate-scale quantum" (NISQ) era and are not yet capable of breaking contemporary encryption.
+
+**Paragraph 2 Draft:**
+Despite the current limitations of quantum hardware, the "Harvest Now, Decrypt Later" threat is an immediate concern, where adversaries collect today's encrypted sensitive data for future decryption by advanced quantum computers. While public-key cryptography faces an increasing risk profile within the next 5-15 years, leading to its potential breakdown in the long-term (~15+ years), the migration to PQC presents significant challenges, including complexity, interoperability issues, and potential performance overheads. Organizations must therefore prioritize identifying long-lived, high-value data at risk and begin strategic planning, inventorying cryptographic assets, and developing crypto-agility to facilitate a complex, widespread transition to quantum-safe systems over the coming decades.
+
+Review against criteria:
+- 2-paragraph summary report: Yes.
+- Well-structured: Yes, logical flow from threat to solution to challenges/timeline.
+- Actual complete content, not a summary of the report: Yes, these are the paragraphs themselves.
+- Synthesizes research into structured, accessible articles: Yes, it combines various findings into a coherent narrative.
+
+Looks good.Quantum computing presents a bifurcated challenge to modern cryptography, with asymmetric algorithms facing a fundamental breakdown while symmetric and hash functions experience a weakening of their security. Shor's algorithm, capable of efficiently factoring large numbers and solving discrete logarithm problems, is poised to render widely used public-key cryptosystems like RSA and Elliptic Curve Cryptography (ECC) insecure once sufficiently large and stable fault-tolerant quantum computers emerge. Conversely, Grover's algorithm offers only a quadratic speedup for symmetric ciphers and hash functions, meaning their security can largely be maintained by doubling key or output lengths (e.g., AES-256, SHA-512). To counter these emerging threats, Post-Quantum Cryptography (PQC) is actively being developed and standardized by bodies like NIST, offering algorithms designed to be secure against both classical and quantum attacks, though current quantum computers remain in the "noisy intermediate-scale quantum" (NISQ) era and are not yet capable of breaking contemporary encryption.
+
+Despite the current limitations of quantum hardware, the "Harvest Now, Decrypt Later" threat is an immediate and active concern, where adversaries collect today's encrypted sensitive data for future decryption by advanced quantum computers. While public-key cryptography faces an increasing risk profile within the next 5-15 years, leading to its potential breakdown in the long-term (~15+ years), the widespread migration to PQC presents significant challenges, including immense complexity, interoperability issues, and potential performance overheads. Organizations must therefore prioritize identifying long-lived, high-value data at risk and begin strategic planning, inventorying cryptographic assets, and developing crypto-agility to facilitate a complex, widespread transition to quantum-safe systems over the coming decades."
