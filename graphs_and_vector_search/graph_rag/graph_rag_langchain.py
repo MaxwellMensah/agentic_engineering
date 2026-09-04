@@ -9,10 +9,22 @@ from neo4j import GraphDatabase
 load_dotenv()
 
 # Database & API Configuration
-NEO4J_URI = os.getenv("NEO4J_URI", "neo4j://localhost:7687")
-NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
-NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password123")
+NEO4J_URI = os.getenv("NEO4J_URI")
+NEO4J_USER = os.getenv("NEO4J_USER")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Strict Fail-Fast Validation
+required_vars = {
+    "NEO4J_URI": NEO4J_URI,
+    "NEO4J_USER": NEO4J_USER,
+    "NEO4J_PASSWORD": NEO4J_PASSWORD,
+    "GEMINI_API_KEY": GEMINI_API_KEY,
+}
+
+missing_vars = [key for key, val in required_vars.items() if not val]
+if missing_vars:
+    raise RuntimeError(f"Missing required .env variables: {', '.join(missing_vars)}")
 
 driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
