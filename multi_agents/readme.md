@@ -1,7 +1,7 @@
 ## Architectural Comparative Breakdown
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Strands-Agent Framework-green?logo=strands" alt="Strands" />
+  <img src="https://img.shields.io/badge/Strands-Agent Framework-darkgreen?logo=strands" alt="Strands" />
   <img src="https://img.shields.io/badge/CrewAI-Orchestration-orange?logo=crewai" alt="CrewAI" />
 </p>
 
