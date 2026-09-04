@@ -13,4 +13,4 @@
   - `Photo Replacement` --(RELATED_TO)--> `Passport`
   - `Identity Theft` --(RELATED_TO)--> `Synthetic Credit Fraud`
   - `Font Inconsistency` / `EXIF Metadata Alteration` --(LEADS_TO)--> `Synthetic Credit Fraud`
-* **Grounded Answer**: Identified `Passport` alongside `Photo Replacement`, `Font Inconsistency`, and `EXIF Metadata Alteration`.
+* **Grounded Answer**: Identified `Passport` alongside `Photo Replacement`, `Font Inconsistency`, and `EXIF Metadata Alteration`. 
