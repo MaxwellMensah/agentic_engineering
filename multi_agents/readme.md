@@ -53,7 +53,7 @@ pixi run python <path_to_script>
 
 <!-- ### 1. CrewAI (`crewai/`)  &nbsp; <img src="https://img.shields.io/badge/CrewAI-Role--Based%20Orchestration-orange" alt="CrewAI" align="middle" /> -->
 
-## 1. CrewAI (`crewai/`) &nbsp; ![CrewAI](https://img.shields.io/badge/CrewAI-Role--Based%20Orchestration-orange)
+## 1. CrewAI (`crewai/`) &nbsp; <img src="https://img.shields.io/badge/CrewAI-Role--Based%20Orchestration-orange" style="vertical-align: -3px;" />
 
 * **File:** `crewai/crewai_agent.py`
 * **Focus:** Demonstrates explicit role-playing, goal-oriented prompt structures, and task pipeline chaining. Output traces are logged locally to `trace.log.txt`.
