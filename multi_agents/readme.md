@@ -5,14 +5,8 @@ This directory serves as a practical codebase comparing four distinct paradigms 
 ---
 
 ## Directory Structure
-
-```text
+```
 multi_agents/
-├── assets/                               # Visual architecture diagrams
-│   ├── a2a_architecture.png
-│   ├── autogen_architecture.png
-│   ├── crewai_architecture.png
-│   └── strands_architecture.png
 ├── A2A/
 │   └── a2a_agent.py                      # Distributed HTTP/JSON-RPC protocol demo
 ├── autogen/
@@ -23,9 +17,7 @@ multi_agents/
 └── strands/
     ├── strand_agent.py                   # Model-driven workflow implementation
     └── strands_and_crewai_comparison.md # Comparative architectural breakdown
-
 ```
-
 ---
 
 ## Architecture Stack Breakdown
@@ -59,7 +51,7 @@ pixi run python <path_to_script>
 
 ---
 
-### 1. CrewAI (`crewai/`)  <img src="https://img.shields.io/badge/CrewAI-Role--Based%20Orchestration-orange" alt="CrewAI" style="vertical-align: middle; margin-left: 8px;" />
+### 1. CrewAI (`crewai/`)  &nbsp; <img src="https://img.shields.io/badge/CrewAI-Role--Based%20Orchestration-orange" alt="CrewAI" align="middle" />
 
 * **File:** `crewai/crewai_agent.py`
 * **Focus:** Demonstrates explicit role-playing, goal-oriented prompt structures, and task pipeline chaining. Output traces are logged locally to `trace.log.txt`.
@@ -80,11 +72,15 @@ graph TD
     C --> D[Writer Agent]
     D --> E[Task 2 Output: Final Deliverable]
 
+    classDef orangeNode fill:#2d1a0e,stroke:#ff8c00,stroke-width:2px,color:#ffffff;
+    class A,B,C,D,E orangeNode;
+    linkStyle default stroke:#ff8c00,stroke-width:2px;
+
 ```
 
 ---
 
-### 2. Strands (`strands/`)  <img src="https://img.shields.io/badge/Strands-Agent%20Framework-darkgreen" alt="Strands" style="vertical-align: middle; margin-left: 8px;" />
+### 2. Strands (`strands/`)  &nbsp; <img src="https://img.shields.io/badge/Strands-Agent%20Framework-darkgreen" alt="Strands" align="middle" />
 
 * **Files:** `strands/strand_agent.py`, `strands/strands_and_crewai_comparison.md`
 * **Focus:** Minimalist model-driven control flow designed to reduce orchestration overhead compared to heavier role-driven frameworks.
@@ -104,11 +100,14 @@ graph LR
     StrandAgent --> DirectLLM[Direct Model Call / Tool Loop]
     DirectLLM --> ExecutionResult[Structured Result]
 
+    classDef darkgreenNode fill:#062013,stroke:#1b4332,stroke-width:2px,color:#ffffff;
+    class UserPrompt,StrandAgent,DirectLLM,ExecutionResult darkgreenNode;
+    linkStyle default stroke:#1b4332,stroke-width:2px;
 ```
 
 ---
 
-### 3. AG2 / AutoGen (`autogen/`)  <img src="https://img.shields.io/badge/AutoGen-Autonomous%20Conversations-purple" alt="AutoGen" style="vertical-align: middle; margin-left: 8px;" />
+### 3. AG2 / AutoGen (`autogen/`)  &nbsp; <img src="https://img.shields.io/badge/AutoGen-Autonomous%20Conversations-purple" alt="AutoGen" align="middle" />
 
 * **File:** `autogen/autogen_agent.py`
 * **Focus:** Sets up an autonomous developer-executor conversation loop (`AssistantAgent` vs. `UserProxyAgent`). The assistant writes Python code, while the user proxy executes it locally and feeds back execution errors or terminal outputs until the task terminates.
@@ -121,8 +120,18 @@ pixi run python autogen/autogen_agent.py
 
 
 #### Flow Diagram & Image Reference
-
-```mermaid
+%%{
+  init: {
+    "theme": "base",
+    "themeVariables": {
+      "actorBkg": "#2e1065",
+      "actorBorder": "#a855f7",
+      "actorTextColor": "#ffffff",
+      "signalColor": "#a855f7",
+      "signalTextColor": "#ffffff"
+    }
+  }
+}%%
 sequenceDiagram
     participant UserProxy as UserProxyAgent (Executor)
     participant Assistant as AssistantAgent (LLM)
@@ -131,12 +140,10 @@ sequenceDiagram
     Assistant->>UserProxy: Generates Python code block
     UserProxy->>UserProxy: Executes code in local workspace
     UserProxy->>Assistant: Returns terminal logs or errors
-
-```
-
+    
 ---
 
-### 4. A2A Protocol (`A2A/`)    <img src="https://img.shields.io/badge/A2A-Communication%20Protocol-blue" alt="A2A Protocol" style="vertical-align: middle; margin-left: 8px;" />
+### 4. A2A Protocol (`A2A/`)    &nbsp; <img src="https://img.shields.io/badge/A2A-Communication%20Protocol-purple" alt="A2A Protocol" align="middle" />
 
 * **File:** `A2A/a2a_agent.py`
 * **Focus:** Demonstrates distributed agent delegation over local HTTP endpoints (`localhost:8080`). Models how remote, opaque agents discover capabilities, delegate tasks, and exchange JSON payloads over standard network APIs.
@@ -150,16 +157,28 @@ pixi run python A2A/a2a_agent.py
 
 #### Flow Diagram & Image Reference
 
-```mermaid
+%%{
+  init: {
+    "theme": "base",
+    "themeVariables": {
+      "actorBkg": "#2e1065",
+      "actorBorder": "#a855f7",
+      "actorTextColor": "#ffffff",
+      "signalColor": "#a855f7",
+      "signalTextColor": "#ffffff",
+      "labelBoxBkgColor": "#2e1065",
+      "labelBoxBorderColor": "#a855f7"
+    }
+  }
+}%%
 sequenceDiagram
-    participant AgentA as Agent A (Client)
-    participant AgentB as Agent B (HTTP Server @ localhost:8080)
+    participant UserProxy as UserProxyAgent (Executor)
+    participant Assistant as AssistantAgent (LLM)
     
-    AgentA->>AgentB: POST /a2a/message (JSON Payload)
-    Note over AgentB: Evaluates task intent independently
-    AgentB-->>AgentA: 200 OK {"status": "success", "response": "..."}
-
-```
+    UserProxy->>Assistant: Run task: "Fix bug in script"
+    Assistant->>UserProxy: Generates Python code block
+    UserProxy->>UserProxy: Executes code in local workspace
+    UserProxy->>Assistant: Returns terminal logs or errors
 
 ---
 
