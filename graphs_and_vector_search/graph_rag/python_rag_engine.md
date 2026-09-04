@@ -1,4 +1,4 @@
-# Day 2 Deliverable: Python Graph RAG Query Engine
+## Python Graph RAG Query Engine
 
 ## 1. Architecture Summary
 * **Database**: Neo4j Desktop (`neo4j://localhost:7687`)
