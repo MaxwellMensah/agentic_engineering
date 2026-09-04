@@ -72,12 +72,10 @@ graph TD
     C --> D[Writer Agent]
     D --> E[Task 2 Output: Final Deliverable]
 
-    classDef orangeNode fill:#2d1a0e,stroke:#ff8c00,stroke-width:2px,color:#ffffff;
+    classDef orangeNode fill:#ff8c0020,stroke:#ff8c00,stroke-width:2px;
     class A,B,C,D,E orangeNode;
     linkStyle default stroke:#ff8c00,stroke-width:2px;
-
 ```
-
 ---
 
 ### 2. Strands (`strands/`)  &nbsp; <img src="https://img.shields.io/badge/Strands-Agent%20Framework-darkgreen" alt="Strands" align="middle" />
@@ -100,7 +98,7 @@ graph LR
     StrandAgent --> DirectLLM[Direct Model Call / Tool Loop]
     DirectLLM --> ExecutionResult[Structured Result]
 
-    classDef darkgreenNode fill:#062013,stroke:#1b4332,stroke-width:2px,color:#ffffff;
+    classDef darkgreenNode fill:#1b433220,stroke:#1b4332,stroke-width:2px;
     class UserPrompt,StrandAgent,DirectLLM,ExecutionResult darkgreenNode;
     linkStyle default stroke:#1b4332,stroke-width:2px;
 ```
@@ -120,18 +118,9 @@ pixi run python autogen/autogen_agent.py
 
 
 #### Flow Diagram & Image Reference
-%%{
-  init: {
-    "theme": "base",
-    "themeVariables": {
-      "actorBkg": "#2e1065",
-      "actorBorder": "#a855f7",
-      "actorTextColor": "#ffffff",
-      "signalColor": "#a855f7",
-      "signalTextColor": "#ffffff"
-    }
-  }
-}%%
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"actorBkg": "#a855f720", "actorBorder": "#a855f7", "signalColor": "#a855f7"}}}%%
 sequenceDiagram
     participant UserProxy as UserProxyAgent (Executor)
     participant Assistant as AssistantAgent (LLM)
@@ -140,10 +129,10 @@ sequenceDiagram
     Assistant->>UserProxy: Generates Python code block
     UserProxy->>UserProxy: Executes code in local workspace
     UserProxy->>Assistant: Returns terminal logs or errors
-    
+```
 ---
 
-### 4. A2A Protocol (`A2A/`)    &nbsp; <img src="https://img.shields.io/badge/A2A-Communication%20Protocol-purple" alt="A2A Protocol" align="middle" />
+### 4. A2A Protocol (`A2A/`)    &nbsp;<img src="https://img.shields.io/badge/A2A-Communication%20Protocol-blue" alt="A2A Protocol" align="middle" />
 
 * **File:** `A2A/a2a_agent.py`
 * **Focus:** Demonstrates distributed agent delegation over local HTTP endpoints (`localhost:8080`). Models how remote, opaque agents discover capabilities, delegate tasks, and exchange JSON payloads over standard network APIs.
@@ -157,29 +146,16 @@ pixi run python A2A/a2a_agent.py
 
 #### Flow Diagram & Image Reference
 
-%%{
-  init: {
-    "theme": "base",
-    "themeVariables": {
-      "actorBkg": "#2e1065",
-      "actorBorder": "#a855f7",
-      "actorTextColor": "#ffffff",
-      "signalColor": "#a855f7",
-      "signalTextColor": "#ffffff",
-      "labelBoxBkgColor": "#2e1065",
-      "labelBoxBorderColor": "#a855f7"
-    }
-  }
-}%%
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"actorBkg": "#007ACC20", "actorBorder": "#007ACC", "signalColor": "#007ACC", "noteBkgColor": "#007ACC20", "noteBorderColor": "#007ACC"}}}%%
 sequenceDiagram
-    participant UserProxy as UserProxyAgent (Executor)
-    participant Assistant as AssistantAgent (LLM)
+    participant AgentA as Agent A (Client)
+    participant AgentB as Agent B (HTTP Server @ localhost:8080)
     
-    UserProxy->>Assistant: Run task: "Fix bug in script"
-    Assistant->>UserProxy: Generates Python code block
-    UserProxy->>UserProxy: Executes code in local workspace
-    UserProxy->>Assistant: Returns terminal logs or errors
-
+    AgentA->>AgentB: POST /a2a/message (JSON Payload)
+    Note over AgentB: Evaluates task intent independently
+    AgentB-->>AgentA: 200 OK {"status": "success", "response": "..."}
+```
 ---
 
 ## Core Paradigm Takeaways
