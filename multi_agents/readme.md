@@ -53,7 +53,7 @@ pixi run python <path_to_script>
 
 <!-- ### 1. CrewAI (`crewai/`)  &nbsp; <img src="https://img.shields.io/badge/CrewAI-Role--Based%20Orchestration-orange" alt="CrewAI" align="middle" /> -->
 
-## 1. CrewAI (`crewai/`) &nbsp; <img src="https://img.shields.io/badge/CrewAI-Role--Based%20Orchestration-orange" style="vertical-align: -3px;" />
+## 1. CrewAI (`crewai/`) &nbsp; <img src="https://img.shields.io/badge/CrewAI-Role--Based%20Orchestration-orange" style="vertical-align: -4px;" />
 
 * **File:** `crewai/crewai_agent.py`
 * **Focus:** Demonstrates explicit role-playing, goal-oriented prompt structures, and task pipeline chaining. Output traces are logged locally to `trace.log.txt`.
@@ -80,7 +80,8 @@ graph TD
 ```
 ---
 
-### 2. Strands (`strands/`)  &nbsp; <img src="https://img.shields.io/badge/Strands-Agent%20Framework-darkgreen" alt="Strands" align="middle" />
+##  2. Strands (`strands/`) &nbsp; <img src="https://img.shields.io/badge/Strands-Agent%20Framework-darkgreen" style="vertical-align: -4px;" />
+
 
 * **Files:** `strands/strand_agent.py`, `strands/strands_and_crewai_comparison.md`
 * **Focus:** Minimalist model-driven control flow designed to reduce orchestration overhead compared to heavier role-driven frameworks.
@@ -107,7 +108,7 @@ graph LR
 
 ---
 
-### 3. AG2 / AutoGen (`autogen/`)  &nbsp; <img src="https://img.shields.io/badge/AutoGen-Autonomous%20Conversations-purple" alt="AutoGen" align="middle" />
+## 3. AG2 / AutoGen (`autogen/`)  &nbsp; <img src="https://img.shields.io/badge/AutoGen-Autonomous%20Conversations-purple" style="vertical-align: -4px;" />
 
 * **File:** `autogen/autogen_agent.py`
 * **Focus:** Sets up an autonomous developer-executor conversation loop (`AssistantAgent` vs. `UserProxyAgent`). The assistant writes Python code, while the user proxy executes it locally and feeds back execution errors or terminal outputs until the task terminates.
@@ -134,7 +135,8 @@ sequenceDiagram
 ```
 ---
 
-### 4. A2A Protocol (`A2A/`)    &nbsp;<img src="https://img.shields.io/badge/A2A-Communication%20Protocol-blue" alt="A2A Protocol" align="middle" />
+## 4. A2A Protocol (`A2A/`) &nbsp; <img src="https://img.shields.io/badge/A2A-Communication%20Protocol-blue" style="vertical-align: -4px;" />
+
 
 * **File:** `A2A/a2a_agent.py`
 * **Focus:** Demonstrates distributed agent delegation over local HTTP endpoints (`localhost:8080`). Models how remote, opaque agents discover capabilities, delegate tasks, and exchange JSON payloads over standard network APIs.
