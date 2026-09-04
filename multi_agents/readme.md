@@ -1,5 +1,10 @@
 ## Architectural Comparative Breakdown
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Strands-Agent Framework-green?logo=strands" alt="Strands" />
+  <img src="https://img.shields.io/badge/CrewAI-Orchestration-orange?logo=crewai" alt="CrewAI" />
+</p>
+
 | Dimension | Strands Agents | CrewAI |
 | --- | --- | --- |
 | **Task Delegation Style** | **Model-Driven & Dynamic.** Multi-agent orchestration is handled via sub-agents as tools, explicit Graphs, or Swarm handoffs. Agents decide dynamically when to invoke sub-agents at runtime. | **Role & Task-Driven.** Declarative pipeline where agents are assigned specific `Task` objects. Execution follows a rigid sequential or hierarchical process flow. |
