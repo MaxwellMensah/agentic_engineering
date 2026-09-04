@@ -20,4 +20,4 @@ def reciprocal_rank_fusion(
     return [
         {"id": cid, "text": chunk_texts[cid], "rrf_score": score}
         for cid, score in sorted_chunks 
-    ] 
+    ]  
