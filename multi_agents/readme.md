@@ -8,15 +8,15 @@ This directory serves as a practical codebase comparing four distinct paradigms 
 ```
 multi_agents/
 ├── A2A/
-│   └── a2a_agent.py                      # Distributed HTTP/JSON-RPC protocol demo
+│   └── a2a_agent.py                        # Distributed HTTP/JSON-RPC protocol demo
 ├── autogen/
-│   └── autogen_agent.py                  # Autonomous debugging loop (AG2 / AutoGen)
+│   └── autogen_agent.py                    # Autonomous debugging loop (AG2 / AutoGen)
 ├── crewai/
-│   ├── crewai_agent.py                   # Role-based task pipeline agent
-│   └── trace.log.txt                     # Execution logs and verbosity trace
+│   ├── crewai_agent.py                     # Role-based task pipeline agent
+│   └── trace.log.txt                       # Execution logs and verbosity trace
 └── strands/
-    ├── strand_agent.py                   # Model-driven workflow implementation
-    └── strands_and_crewai_comparison.md # Comparative architectural breakdown
+    ├── strand_agent.py                     # Model-driven workflow implementation
+    └── strands_and_crewai_comparison.md    # Comparative architectural breakdown
 ```
 ---
 
